@@ -1217,7 +1217,7 @@ public class Main extends Builder {
         try {
             String peergosUrl = a.getArg("peergos-url");
             URL api = new URL(peergosUrl);
-            NetworkAccess network = buildJavaNetworkAccess(api, peergosUrl.startsWith("https"), Optional.of("Peergos-" + UserService.CURRENT_VERSION + "-fuse"), Optional.empty()).join();
+            NetworkAccess network = buildNonCachingJavaNetworkAccess(api, peergosUrl.startsWith("https"), 0, Optional.empty(), Optional.of("Peergos-" + UserService.CURRENT_VERSION + "-fuse"), Optional.empty()).join();
 
             Crypto crypto = initCrypto();
             PublicSigningKey.addProvider(PublicSigningKey.Type.Ed25519, crypto.signer);
