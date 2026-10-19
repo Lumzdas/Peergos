@@ -5,6 +5,8 @@ import peergos.server.util.Logging;
 
 import jnr.ffi.Pointer;
 import jnr.ffi.types.*;
+import jnr.posix.POSIX;
+import jnr.posix.POSIXFactory;
 import peergos.shared.storage.auth.*;
 import peergos.shared.user.UserContext;
 import peergos.shared.user.fs.*;
@@ -42,10 +44,15 @@ public class PeergosFS extends FuseStubFS implements AutoCloseable {
 
 
     private final UserContext context;
+    private final int uid;
+    private final int gid;
     protected volatile boolean isClosed;
 
     public PeergosFS(UserContext context) {
         this.context = context;
+        POSIX posix = POSIXFactory.getPOSIX();
+        this.uid = posix.getuid();
+        this.gid = posix.getgid();
     }
 
     @Override
@@ -68,6 +75,8 @@ public class PeergosFS extends FuseStubFS implements AutoCloseable {
                     FileStat.S_IFDIR | 0755 : FileStat.S_IFREG | 0644;
 
             fileStat.st_mode.set(mode);
+            fileStat.st_uid.set(uid);
+            fileStat.st_gid.set(gid);
             fileStat.st_size.set(peergosStat.treeNode.getSize());
 
             Instant instant = Optional.ofNullable(fileProperties).map(p -> p.modified.toInstant(ZonedDateTime.now().getOffset())).orElse(Instant.EPOCH);
